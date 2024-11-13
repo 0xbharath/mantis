@@ -1,0 +1,13 @@
+name-template: 'Release ${{ version }}'
+tag-template: 'v${{ version }}'
+categories:
+  - title: 'Closed Issues'
+    label: 'bug'
+  - title: 'New Features'
+    label: 'enhancement'
+  - title: 'Other Changes'
+    label: 'documentation'
+change-template: '- ${{ change.title }} (#${{ change.number }})'
+no-changes-template: '- No significant updates since last release'
+
+version-resolver: auto
