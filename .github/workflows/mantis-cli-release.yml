@@ -1,89 +1,57 @@
-name: Mantis CLI Latest Release
+name: Mantis CLI Release
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      releaseType:
-        description: 'What kind of release is this?'
-        required: true
-        type: choice
-        options:
-          - 'major'
-          - 'minor'
-          - 'patch'
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: 0xbharath/mantis
+  release:
+    types: [created]
 
 jobs:
-  build-and-release:
+  release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch full history to access tags
+        uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
-      - name: Install Poetry
-        run: pip install poetry==1.4.2
-
-      - name: Bump version and add tag
-        id: versioning
-        run: |
-          TAG_VERSION=$(poetry version -s)
-          echo "TAG_VERSION=$TAG_VERSION" >> $GITHUB_ENV
-          git tag $TAG_VERSION
-          git push origin $TAG_VERSION
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Log in to GitHub Container Registry
+      - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+      - name: Build and Push Docker image
+        id: docker_build
+        uses: docker/build-push-action@v3
         with:
           context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          labels: ${{ steps.meta.outputs.labels }}
+            0xbharath/mantis:latest
+            0xbharath/mantis:${{ github.sha }}
 
-      # Generate changelog and categorize by labels
-      - name: Generate Changelog
-        id: changelog
+      - name: Draft Release Notes
+        id: draft_release
         uses: release-drafter/release-drafter@v5
         with:
           config-name: .github/release-drafter.yml
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ env.TAG_VERSION }}
-          release_name: Release ${{ env.TAG_VERSION }}
-          body: ${{ steps.changelog.outputs.draft_body }}
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.sha }}
+          release_name: "Release ${{ github.sha }}"
+          draft: false
+          prerelease: false
+          body: ${{ steps.draft_release.outputs.body }}
+
