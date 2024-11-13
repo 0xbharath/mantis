@@ -1,0 +1,37 @@
+name: Create GitHub Release from Docker Tag
+
+on:
+  workflow_dispatch: # Allows the workflow to be manually triggered
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set Docker Tag from Latest Run
+        id: docker_tag
+        run: |
+          # Get the latest Docker image tag from the existing workflow output
+          docker_tag=$(gh run list --workflow <existing-workflow-name>.yml --limit 1 --json conclusion,displayTitle,createdAt | jq -r '.[0].displayTitle')
+          echo "Docker tag: $docker_tag"
+          echo "::set-output name=tag::$docker_tag"
+
+      - name: Fetch closed issues for release notes
+        id: release_notes
+        run: |
+          # Fetches the titles of all closed issues since the last release for release notes
+          notes=$(gh issue list --state closed --label "release" --limit 10 --json title | jq -r '.[].title' | sed 's/^/- /')
+          echo "Release notes:"
+          echo "$notes"
+          echo "::set-output name=notes::$notes"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.docker_tag.outputs.tag }}
+          release_name: "Release ${{ steps.docker_tag.outputs.tag }}"
+          body: ${{ steps.release_notes.outputs.notes }}
+          draft: false
+          prerelease: false
