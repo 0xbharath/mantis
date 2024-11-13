@@ -1,17 +1,26 @@
-changelog
-  exclude
-    authors
-      - dependabot
-  categories:
-    - title: New Features
-      labels:
-        - "Type: Enhancement"
-    - title: Bug Fixes
-      labels:
-        - "Type: Bug"
-    - title: Maintenance
-      labels:
-        - "Type: Maintenance"
-    - title: Other Changes
-      labels:
-        - "*"
+name-template: 'Release ${{ version }}'
+tag-template: 'v${{ version }}'
+category-template: '### ${{ heading }}'
+change-template: '- ${{ change }} (@${{ contributor }})'
+no-changes-template: 'No significant changes.'
+
+categories:
+  - title: '🚀 New Features'
+    labels:
+      - 'Type: Enhancement'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'Type: Bug'
+  - title: '🛠 Maintenance'
+    labels:
+      - 'Type: Maintenance'
+  - title: '📦 Other Changes'
+    labels:
+      - '*'
+
+exclude-labels:
+  - 'skip-changelog'
+
+template: |
+  ## What's Changed
+  ${{ CHANGELOG }}
