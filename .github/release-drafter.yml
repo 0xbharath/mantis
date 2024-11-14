@@ -1,13 +1,15 @@
-name-template: 'Release ${{ version }}'
-tag-template: 'v${{ version }}'
-categories:
-  - title: 'Closed Issues'
-    label: 'bug'
-  - title: 'New Features'
-    label: 'enhancement'
-  - title: 'Other Changes'
-    label: 'documentation'
-change-template: '- ${{ change.title }} (#${{ change.number }})'
-no-changes-template: '- No significant updates since last release'
+name: Release Drafter
 
-version-resolver: auto
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
