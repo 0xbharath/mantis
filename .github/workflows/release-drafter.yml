@@ -13,16 +13,3 @@ jobs:
       - uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          config-name: release-drafter.yml
-
-template: |
-  ## What's Changed
-  - PR Title 1
-  - PR Title 2
-
-  ## New Features
-  - Add any new features or improvements here
-
-  ## Bug Fixes
-  - Describe any bug fixes here
