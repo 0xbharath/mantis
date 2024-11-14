@@ -1,15 +1,11 @@
 template: |
-  ## What's Changed
-  - PR Title 1
-  - PR Title 2
+  ## 🚀 What's New
+  Here are the updates since the last release:
 
-  ## New Features
-  - Add any new features or improvements here
+  ### New Features
+  $CHANGES
 
-  ## Bug Fixes
-  - Describe any bug fixes here
-
-change-template: '- $TITLE (#$NUMBER) by @$AUTHOR'
+change-template: '- $TITLE ([#$NUMBER]($URL)) by @$AUTHOR'
 categories:
   - title: '🚀 New Features'
     labels:
