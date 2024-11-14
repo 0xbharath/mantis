@@ -1,15 +1,22 @@
-name: Release Drafter
+template: |
+  ## What's Changed
+  - PR Title 1
+  - PR Title 2
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  ## New Features
+  - Add any new features or improvements here
 
-jobs:
-  update_release_draft:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: release-drafter/release-drafter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ## Bug Fixes
+  - Describe any bug fixes here
+
+change-template: '- $TITLE (#$NUMBER) by @$AUTHOR'
+categories:
+  - title: '🚀 New Features'
+    labels:
+      - feature
+  - title: '🐛 Bug Fixes'
+    labels:
+      - bug
+  - title: '🛠 Maintenance'
+    labels:
+      - maintenance
